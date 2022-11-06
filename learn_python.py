@@ -21,11 +21,10 @@ logging.basicConfig(
 if __name__ == "__main__":
     application = ApplicationBuilder().token(TOKEN).build()
 
-    # job_queue = application.job_queue
-    # job_send = job_queue.run_repeating(send_hello,
-    #                                    interval=5,
-    #                                    first=5,
-    #                                    last=15)
+    job_queue = application.job_queue
+    job_send = job_queue.run_repeating(send_hello,
+                                       interval=10,
+                                       first=1)
 
     anketa = ConversationHandler(
         entry_points=[

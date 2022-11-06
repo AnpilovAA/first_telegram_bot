@@ -1,16 +1,13 @@
+from datetime import datetime
 from telegram.ext import ContextTypes
+from models import get_subscribe
 
 
 async def send_hello(context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(
-        chat_id='470308069',
-        text='Привет'
-        # text=f'Привет {await context.job.interval}'
-    )
-    # context.job.interval += 5
-    # if context.job.intrval > 15:
-    #     await context.bot.send_message(
-    #         chat_id='470308069',
-    #         text='Выполнено'
-    #     )
-    #     await context.job.schedule_removal()
+    now = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
+
+    for user in get_subscribe():
+        await context.bot.send_message(
+            chat_id=user.user_id,
+            text=f'Точное время {now}'
+            )
