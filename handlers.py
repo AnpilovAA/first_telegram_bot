@@ -2,7 +2,7 @@ import telegram
 from utils import (get_smile, play_random_numbers,
                    main_keyboard, has_object_on_image)
 
-from models import add_user_db
+from models import add_user_db, subscribe_user
 from telegram import Update
 from telegram.ext import ContextTypes
 import os
@@ -60,7 +60,6 @@ async def check_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_name = os.path.join(
         'downloads', f'{user_photo.file_id}.{format_file}'
                             )
-    print(file_name)
 
     await telegram.File.download(photo_File, file_name)
     await update.message.reply_text('Фото сохранено')
@@ -73,3 +72,25 @@ async def check_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         os.remove(file_name)
         await update.message.reply_text('Кисик не найден')
+
+
+async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    user_name = update.effective_user.first_name
+    try:
+        add_user_db(user_name=user_name, chat_id=chat_id)
+    finally:
+        subscribe_user(chat_id, True)
+
+    await update.message.reply_text(
+        text='Вы подписались'
+    )
+
+
+async def unsub(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    subscribe_user(chat_id, False)
+
+    await update.message.reply_text(
+        text='Вы отписались'
+    )

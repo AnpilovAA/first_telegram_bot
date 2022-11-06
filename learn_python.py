@@ -4,7 +4,8 @@ from settings import TOKEN
 from telegram.ext import (ApplicationBuilder, CommandHandler, filters,
                           MessageHandler, ConversationHandler,)
 
-from handlers import start, check_photo, user_coordinatenes, guess
+from handlers import (start, check_photo, user_coordinatenes, guess,
+                      sub, unsub)
 from jobs import send_hello
 from utils import send_picture
 from anketa import (anketa_start, anketa_name, anketa_rating,
@@ -20,8 +21,11 @@ logging.basicConfig(
 if __name__ == "__main__":
     application = ApplicationBuilder().token(TOKEN).build()
 
-    job_queue = application.job_queue
-    job_send = job_queue.run_repeating(send_hello, interval=450)
+    # job_queue = application.job_queue
+    # job_send = job_queue.run_repeating(send_hello,
+    #                                    interval=5,
+    #                                    first=5,
+    #                                    last=15)
 
     anketa = ConversationHandler(
         entry_points=[
@@ -50,6 +54,9 @@ if __name__ == "__main__":
 
     send_picture_handler = CommandHandler('picture', send_picture)
 
+    subscribe_handler = CommandHandler('subscribe', sub)
+    unsubscribe_handler = CommandHandler('unsubscribe', unsub)
+
     regex_handler = MessageHandler(
         filters.Regex('^(Прислать слёзы)$'), send_picture
         )
@@ -68,6 +75,8 @@ if __name__ == "__main__":
         location_handler,
         check_user_photo,
         anketa,
+        subscribe_handler,
+        unsubscribe_handler,
         ))
 
     application.run_polling()
