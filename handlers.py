@@ -2,6 +2,8 @@ import telegram
 from utils import (get_smile, play_random_numbers,
                    main_keyboard, has_object_on_image)
 
+from jobs import alarm
+
 from models import add_user_db, subscribe_user
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -94,3 +96,19 @@ async def unsub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         text='Вы отписались'
     )
+
+
+async def set_alarm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat = update.message.chat_id
+    try:
+        alarm_seconds = abs(int(context.args[0]))
+        await update.message.reply_text(
+            text=f'Уведомление через {alarm_seconds} секунд')
+        context.job_queue.run_once(
+            alarm, alarm_seconds, chat_id=chat
+        )
+    except (Exception) as ex:
+        await update.message.reply_text(
+            text='Введите целое число секунд после команды'
+        )
+        print('\n', ex, '\n', 'set_alarm!!!')

@@ -1,15 +1,17 @@
+from datetime import time
+
 import logging
-
-from settings import TOKEN
+from pytz import timezone
 from telegram.ext import (ApplicationBuilder, CommandHandler, filters,
-                          MessageHandler, ConversationHandler,)
+                          MessageHandler, ConversationHandler)
 
-from handlers import (start, check_photo, user_coordinatenes, guess,
+from handlers import (set_alarm, start, check_photo, user_coordinatenes, guess,
                       sub, unsub)
-from jobs import send_hello
+from jobs import send_updates
 from utils import send_picture
 from anketa import (anketa_start, anketa_name, anketa_rating,
                     anketa_comment, anketa_skip, anketa_dontknow)
+from settings import TOKEN
 
 
 logging.basicConfig(
@@ -22,9 +24,16 @@ if __name__ == "__main__":
     application = ApplicationBuilder().token(TOKEN).build()
 
     job_queue = application.job_queue
-    job_send = job_queue.run_repeating(send_hello,
+
+    target_time = time(12, 0, tzinfo=timezone('Europe/Moscow'))
+    job_daily = job_queue.run_daily(send_updates,
+                                    target_time,
+                                    days=(1, 2, 3, 5))
+
+    job_send = job_queue.run_repeating(send_updates,
                                        interval=10,
-                                       first=1)
+                                       first=1,
+                                       last=1)
 
     anketa = ConversationHandler(
         entry_points=[
@@ -53,6 +62,8 @@ if __name__ == "__main__":
 
     send_picture_handler = CommandHandler('picture', send_picture)
 
+    alarm_handler = CommandHandler('alarm', set_alarm)
+
     subscribe_handler = CommandHandler('subscribe', sub)
     unsubscribe_handler = CommandHandler('unsubscribe', unsub)
 
@@ -76,6 +87,7 @@ if __name__ == "__main__":
         anketa,
         subscribe_handler,
         unsubscribe_handler,
+        alarm_handler,
         ))
 
     application.run_polling()
