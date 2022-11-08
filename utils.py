@@ -10,6 +10,8 @@ from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
 
+from inline_key_buttons import inline_key_button
+
 
 def get_smile(user_data):
     if 'emoji' not in user_data:
@@ -37,14 +39,20 @@ async def send_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     await context.bot.send_photo(
         chat_id=chat_id,
-        photo=open(any_photo_filename, 'rb')
+        photo=open(any_photo_filename, 'rb'),
+        reply_markup=inline_key_button()
     )
 
 
 def main_keyboard():
-    # return ReplyKeyboardMarkup([['Прислать слёзы', 'Test']]) # Create main keyboard
+    # return ReplyKeyboardMarkup([['Прислать слёзы', 'Test']])
+    # # Create main keyboard
     return ReplyKeyboardMarkup([
-        ['Прислать слёзы', KeyboardButton('Моя локация', request_location=True), "Заполнить анкету"]
+        ['Прислать слёзы',
+            KeyboardButton(
+                'Моя локация',
+                request_location=True),
+         "Заполнить анкету"]
         ])  # Create main keyboard
 
 
