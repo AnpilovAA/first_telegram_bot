@@ -102,13 +102,3 @@ def get_subscribe():
     return session.query(Subscribes).filter(
             Subscribes.subscribe == True
             ).all()
-
-
-# if __name__ == '__main__':
-#     for i in get_subscribe():
-#         print(i.user_id)
-#     add_user_db('Andrey', 470308069)
-#     add_anketa('Андрей Анпилов', 470308069, 4, 'Cool')
-#     add_anketa('Андрей АНпилов', 470308069, 3, '')
-#     subscribe(470308069, True)
-#     subscribe(470308069, False)
