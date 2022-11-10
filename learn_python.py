@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     anketa = ConversationHandler(
         entry_points=[
-            MessageHandler(filters.Regex('^(Заполнить анкету)$'), anketa_start)
+            MessageHandler(filters.Regex('^(Fill form)$'), anketa_start)
         ],
 
         states={
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     unsubscribe_handler = CommandHandler('unsubscribe', unsub)
 
     regex_handler = MessageHandler(
-        filters.Regex('^(Прислать слёзы)$'), send_picture
+        filters.Regex('^(Send picture)$'), send_picture
         )
 
     check_user_photo = MessageHandler(filters.PHOTO, check_photo)

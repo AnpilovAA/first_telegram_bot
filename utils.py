@@ -6,11 +6,12 @@ from telegram.ext import ContextTypes
 
 from settings import USER_EMOJI, CLARIFAI_API_KEY
 from models import check_user_vote, rating
+from inline_key_buttons import inline_key_button
+from settings import PATH_TO_PHOTO
 
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
-from inline_key_buttons import inline_key_button
 import os
 
 
@@ -35,7 +36,7 @@ def play_random_numbers(user_number):
 
 
 async def send_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    list_of_photo = glob(os.path.join(r'C:\Users\Public\Pictures\*.jp*g'))
+    list_of_photo = glob(os.path.join(PATH_TO_PHOTO))
     filename = choice(list_of_photo)
     chat_id = update.effective_chat.id
 
@@ -45,21 +46,24 @@ async def send_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         keyboard = inline_key_button(filename)
         caption = None
-    await context.bot.send_photo(
-        chat_id=chat_id,
-        photo=open(filename, 'rb'),
-        reply_markup=keyboard,
-        caption=caption
-    )
+    try:
+        await context.bot.send_photo(
+            chat_id=chat_id,
+            photo=open(filename, 'rb'),
+            reply_markup=keyboard,
+            caption=caption
+        )
+    except Exception as ex:
+        print('\n', ex, '\n')
 
 
 def main_keyboard():
     return ReplyKeyboardMarkup([
-        ['Прислать слёзы',
+        ['Send picture',
             KeyboardButton(
-                'Моя локация',
+                'My location',
                 request_location=True),
-         "Заполнить анкету"]
+         "Fill form"]
         ])
 
 

@@ -38,13 +38,18 @@ async def guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def user_coordinatenes(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
+                update: Update,
+                context: ContextTypes.DEFAULT_TYPE
                             ):
 
-    loc = update.message.location
+    smile = get_smile(context.user_data)
+
+    location = update.message.location
+
+    latitude = location.latitude
+    longitude = location.longitude
     await update.message.reply_text(
-        f'{loc}, {get_smile(context.user_data)}',
+        text=f"""Latitude: {latitude}, Longitude: {longitude} {smile}""",
         reply_markup=main_keyboard()
     )
 

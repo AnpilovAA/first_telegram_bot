@@ -10,7 +10,7 @@ from utils import main_keyboard
 async def anketa_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     await message.reply_text(
-        'Привет, как вас зовут?',
+        'Hello, what is your name and lastname?',
         reply_markup=ReplyKeyboardRemove()
     )
     return 'name'
@@ -21,14 +21,14 @@ async def anketa_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.message.text
     if len(user_name.split()) < 2:
         await message.reply_text(
-            text='Пожалуйста введите имя и фамилию'
+            text='Please input your name and last name'
         )
         return 'name'
     else:
         context.user_data['anketa'] = {'name': user_name}
         reply_keyboard = [['1', '2', '3', '4', '5']]
         await message.reply_text(
-            'Пожалуйста оцените нашего бота от 1 до 5',
+            'Please rate our bot from 1 to 5',
             reply_markup=ReplyKeyboardMarkup(
                 reply_keyboard,
                 one_time_keyboard=True
@@ -40,7 +40,7 @@ async def anketa_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def anketa_rating(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['anketa']['rating'] = int(update.message.text)
     await update.message.reply_text(
-        'Напишите комментарий или нажмите /skip'
+        'Write a comment or press /skip'
     )
     return 'comment'
 
@@ -86,13 +86,13 @@ async def anketa_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def format_anketa(anketa):
-    user_text = f""" <b> Имя Фамилия </b> {anketa['name']}
-    <b> Оценка </b> {anketa['rating']}
+    user_text = f""" <b>Name </b> {anketa['name']}
+    <b> Score </b> {anketa['rating']}
     """
     if 'comment' in anketa:
-        user_text += f"<b>Комментарий</b> {anketa['comment']}"
+        user_text += f"<b>Comment</b> {anketa['comment']}"
     return user_text
 
 
 async def anketa_dontknow(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Я вас не понимаю')
+    await update.message.reply_text("Sorry I don't understand")
