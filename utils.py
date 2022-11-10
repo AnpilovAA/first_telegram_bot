@@ -5,12 +5,13 @@ from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import ContextTypes
 
 from settings import USER_EMOJI, CLARIFAI_API_KEY
+from models import check_user_vote, rating
 
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
-
 from inline_key_buttons import inline_key_button
+import os
 
 
 def get_smile(user_data):
@@ -34,26 +35,32 @@ def play_random_numbers(user_number):
 
 
 async def send_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    any_photo_list = glob(r'C:\Users\Public\Pictures\*.jp*g')
-    any_photo_filename = choice(any_photo_list)
+    list_of_photo = glob(os.path.join(r'C:\Users\Public\Pictures\*.jp*g'))
+    filename = choice(list_of_photo)
     chat_id = update.effective_chat.id
+
+    if check_user_vote(chat_id, filename):
+        keyboard = None
+        caption = f'Вы голосовали rating - {rating(filename)}'
+    else:
+        keyboard = inline_key_button(filename)
+        caption = None
     await context.bot.send_photo(
         chat_id=chat_id,
-        photo=open(any_photo_filename, 'rb'),
-        reply_markup=inline_key_button()
+        photo=open(filename, 'rb'),
+        reply_markup=keyboard,
+        caption=caption
     )
 
 
 def main_keyboard():
-    # return ReplyKeyboardMarkup([['Прислать слёзы', 'Test']])
-    # # Create main keyboard
     return ReplyKeyboardMarkup([
         ['Прислать слёзы',
             KeyboardButton(
                 'Моя локация',
                 request_location=True),
          "Заполнить анкету"]
-        ])  # Create main keyboard
+        ])
 
 
 def has_object_on_image(file_name, object_name):
@@ -83,9 +90,3 @@ def check_response_for_object(response, object_name):
     else:
         print(f'Ошибка {response.outputs[0].status.details}')
     return False
-
-
-if __name__ == '__main__':
-    print(has_object_on_image(r'downloads\1.jpg', 'cat'))
-    print(has_object_on_image(r'downloads\2.jpg', 'people'))
-    print(has_object_on_image(r'downloads\3.jpg', 'cat'))

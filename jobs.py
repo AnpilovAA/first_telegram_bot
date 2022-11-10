@@ -25,4 +25,4 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE):
             text='Сработал будильник'
         )
     except Exception as ex:
-        print('alarm --------', ex)
+        print(ex)

@@ -1,5 +1,8 @@
 from sqlalchemy import Boolean, Column, Integer, VARCHAR, TEXT
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.sql.functions import sum
 from db import Base, session
+# import os
 
 
 class User(Base):
@@ -41,6 +44,20 @@ class Subscribes(Base):
         return f'{self.user_id}, {self.subscribe}'
 
 
+class UsersVotes(Base):
+    """Users vote"""
+    __tablename__ = 'users_votes'
+
+    users_votes_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    image_name = Column(TEXT)
+    vote = Column(Integer)
+
+    def __repr__(self) -> str:
+        return 'User_id {}, image {}, vote {}'.format(
+            self.user_id, self.image_name, self.vote)
+
+
 def add_user_db(user_name, chat_id):
     query = session.query(User).order_by(User.user_id)
     for chat in query:
@@ -53,9 +70,11 @@ def add_user_db(user_name, chat_id):
 
 def add_anketa(user_name, user_id, rating, user_comment):
     anketa = Anketa(
-            user_name=user_name, user_id=user_id,
-            rating=rating, user_comment=user_comment
-                    )
+            user_name=user_name,
+            user_id=user_id,
+            rating=rating,
+            user_comment=user_comment
+            )
 
     return add_to_database(anketa)
 
@@ -87,6 +106,69 @@ def update_subscribe(user_id, new_status):
         session.commit()
 
 
+def get_subscribe():
+    return session.query(Subscribes
+                         ).filter(
+                                    Subscribes.subscribe == True
+                          ).all()
+
+
+def check_vote(func):
+    def wrapper(*args, **kwargs):
+
+        try:
+            query = session.query(UsersVotes).filter_by(
+                user_id=args[0], image_name=args[1]
+            ).one()
+
+            if args[0] == query.user_id and args[1] == query.image_name:
+                return True
+
+        except NoResultFound as ex:
+            print(ex)
+
+        func(*args, **kwargs)
+    return wrapper
+
+
+@check_vote
+def add_vote(user_id, image, vote):
+    voice = UsersVotes(
+        user_id=user_id,
+        image_name=image,
+        vote=vote
+    )
+    return add_to_database(voice)
+
+
+def check_user_vote(user_id, image):
+    try:
+        query = session.query(UsersVotes).filter_by(
+                    user_id=user_id, image_name=image
+        ).one()
+        if query.user_id == user_id and query.image_name == image:
+            return True
+    except Exception as ex:
+        print(repr(ex))
+    return False
+
+
+def rating(image):
+    try:
+        query = session.query(sum(UsersVotes.vote)
+                              ).filter_by(image_name=image
+                                          ).group_by(UsersVotes.vote,
+                                                     UsersVotes.image_name
+                                                     ).all()
+    except Exception as ex:
+        print('\n', ex)
+    else:
+        image_rating = query[0][0]
+        if image_rating is not None:
+            return image_rating
+        return None
+
+
 def add_to_database(table):
     try:
         session.add(table)
@@ -96,9 +178,3 @@ def add_to_database(table):
         raise
     else:
         session.commit()
-
-
-def get_subscribe():
-    return session.query(Subscribes).filter(
-            Subscribes.subscribe == True
-            ).all()

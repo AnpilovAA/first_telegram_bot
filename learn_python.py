@@ -3,10 +3,11 @@ from datetime import time
 import logging
 from pytz import timezone
 from telegram.ext import (ApplicationBuilder, CommandHandler, filters,
-                          MessageHandler, ConversationHandler)
+                          MessageHandler, ConversationHandler,
+                          CallbackQueryHandler)
 
 from handlers import (set_alarm, start, check_photo, user_coordinatenes, guess,
-                      sub, unsub)
+                      sub, unsub, picture_ranting)
 from jobs import send_updates
 from utils import send_picture
 from anketa import (anketa_start, anketa_name, anketa_rating,
@@ -77,6 +78,11 @@ if __name__ == "__main__":
 
     guess_handler = CommandHandler('guess', guess)
 
+    callback_query_handler = CallbackQueryHandler(
+        picture_ranting,
+        pattern='^(rating|)'
+        )
+
     application.add_handlers((
         start_handler,
         guess_handler,
@@ -88,6 +94,7 @@ if __name__ == "__main__":
         subscribe_handler,
         unsubscribe_handler,
         alarm_handler,
+        callback_query_handler,
         ))
 
     application.run_polling()
