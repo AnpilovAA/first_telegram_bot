@@ -22,16 +22,20 @@ def get_smile(user_data):
     return user_data['emoji']
 
 
-def play_random_numbers(user_number):
-    bot_number = randint(user_number - 10, user_number + 10)
+def get_bot_number(user_number):
+    return randint(user_number - 10, user_number + 10)
+
+
+def play_random_numbers(user_number, bot_number):
     if user_number > bot_number:
-        message = f'Вы победили ваше число {user_number},\
-             число бота {bot_number}'
+        message = f'Your number is {user_number},\
+            my number is {bot_number}, you win'
     elif user_number == bot_number:
-        message = f'Ничья ваше число {user_number}, число бота {bot_number}'
+        message = f'Drow your number is {user_number},\
+            my number is {bot_number}, you loose'
     else:
-        message = message = f'Вы проиграли число {user_number},\
-             число бота {bot_number}'
+        message = message = f'Your number is {user_number},\
+            my number is {bot_number}, you lose'
     return message
 
 

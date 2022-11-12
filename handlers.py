@@ -1,6 +1,7 @@
 import telegram
 from utils import (get_smile, play_random_numbers,
-                   main_keyboard, has_object_on_image)
+                   main_keyboard, has_object_on_image,
+                   get_bot_number)
 
 from jobs import alarm
 
@@ -26,7 +27,8 @@ async def guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         try:
             user_number = int(context.args[0])
-            message = play_random_numbers(user_number)
+            bot_number = get_bot_number
+            message = play_random_numbers(user_number, bot_number)
         except ValueError as vlerror:
             print(repr(vlerror), 'must be int')
     else:
@@ -132,4 +134,11 @@ async def picture_ranting(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.callback_query.edit_message_caption(
         caption=f'Thank you, rating - {rating_picture}'
+    )
+
+
+def talk_to_me(update: Update, context:ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+    return update.message.reply_text(
+        text=text
     )
